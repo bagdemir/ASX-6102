@@ -1,5 +1,8 @@
 package io.moo.robot
 
+import java.awt.Point
+import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 
 /**
@@ -7,12 +10,22 @@ import javafx.scene.layout.Pane
   *
   * @author void
   */
-class World(pane: Pane) {
+class World extends Pane {
   var objects : List[WorldObject] = List()
-  def render() =  objects.foreach(obj => pane.getChildren.add(obj.getView))
+
+  setOnMouseClicked(new EventHandler[MouseEvent]() {
+    override def handle(event: MouseEvent) =  objects.foreach {
+      case mo: MovingObject => mo.move(new Point(event.getX.toInt, event.getY.toInt), 0)
+      case _ =>
+    }
+  })
+
+  def render() =  objects.foreach(obj => getChildren.add(obj.getView))
   def add(worldObject: WorldObject) = {
     objects = worldObject :: objects
   }
+
+
 }
 
 class WorldUnit
