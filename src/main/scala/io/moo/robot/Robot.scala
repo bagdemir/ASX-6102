@@ -1,6 +1,7 @@
 package io.moo.robot
 
 import java.awt.Point
+import java.util.{Timer, TimerTask}
 import javafx.scene.Node
 import javafx.scene.image.{Image, ImageView}
 
@@ -38,21 +39,48 @@ class Robot(world: World) extends MovingObject {
 
   override def move(toPoint: Point, velocity: Int): Unit = {
     val horizontalMovement = Math.abs(toPoint.x - getPos().x) >= Math.abs(toPoint.x - getPos().x)
-    val timer = new java.util.Timer()
-    val task = new java.util.TimerTask {
+    val timer = new Timer()
+    val task = new TimerTask {
+      var counter = 0
+
       def run() = {
+        val horizontalDirection = (toPoint.x - getPos().x) / Math.abs(toPoint.x - getPos().x)
+        val verticalDirection = (toPoint.y - getPos().y) / Math.abs(toPoint.y - getPos().y)
+        val movementLength = 1
+
         if (horizontalMovement) {
           val step = Math.abs(toPoint.x - getPos().x).toDouble / Math.abs(toPoint.y - getPos().y).toDouble
-          println(step)
-          val next = pic.getX + 1
+          val next = pic.getX + (movementLength * horizontalDirection)
+
+          counter = counter + 1
+
           pic.setX(next)
-          if ((pic.getX - getPos().x) % step == 0) pic.setY(pic.getY + 1)
+          if (counter > step) {
+            pic.setY(pic.getY + (movementLength * verticalDirection))
+            counter = 0
+          }
           if (pic.getX > (toPoint.x - 5) && pic.getX < (toPoint.x + 5) ||
             pic.getY > (toPoint.y - 5) && pic.getY < (toPoint.y + 5)) {
             timer.cancel()
             pos = new Point(pic.getX.toInt, pic.getY.toInt)
           }
+        } else {
+          val step = Math.abs(toPoint.y - getPos().y).toDouble / Math.abs(toPoint.x - getPos().x).toDouble
+          val next = pic.getY + (movementLength * verticalDirection)
 
+          counter = counter + 1
+
+          pic.setX(next)
+          if (counter > step) {
+            pic.setY(pic.getX +  + (movementLength * horizontalDirection))
+            counter = 0
+          }
+
+          if (pic.getX > (toPoint.x - 5) && pic.getX < (toPoint.x + 5) ||
+            pic.getY > (toPoint.y - 5) && pic.getY < (toPoint.y + 5)) {
+            timer.cancel()
+            pos = new Point(pic.getX.toInt, pic.getY.toInt)
+          }
         }
       }
     }
