@@ -2,6 +2,7 @@ package io.moo.robot
 
 import java.awt.Point
 import javafx.event.EventHandler
+import javafx.scene.control.Label
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 
@@ -12,6 +13,10 @@ import javafx.scene.layout.Pane
   */
 class World extends Pane {
   var objects : List[WorldObject] = List()
+  val posDebugLabel = new Label("a label");
+
+  getChildren.add(posDebugLabel);
+
 
   setOnMouseClicked(new EventHandler[MouseEvent]() {
     override def handle(event: MouseEvent) =  objects.foreach {

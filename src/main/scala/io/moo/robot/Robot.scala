@@ -3,6 +3,7 @@ package io.moo.robot
 import java.awt.Point
 import java.util.{Timer, TimerTask}
 import javafx.scene.Node
+import javafx.scene.control.Label
 import javafx.scene.image.{Image, ImageView}
 
 /**
@@ -61,37 +62,45 @@ class Robot(world: World) extends MovingObject {
   pic.getStyleClass.add("grid")
   pic.setFocusTraversable(true)
 
+
   override def getView(): Node = pic
 
   override def move(to: Point, velocity: Int): Unit = {
     val toPoint = new Point((to.x - getDimensions().w / 2.0d).toInt, (to.y - getDimensions().h / 2.0d).toInt)
     val movementLength = 1
     val timer = new Timer()
-
     val xSign = (toPoint.x - getPosition().x) / Math.abs(toPoint.x - getPosition().x)
     val ySign = (toPoint.y - getPosition().y) / Math.abs(toPoint.y - getPosition().y)
+    val step = Math.abs(toPoint.x - getPosition().x).toDouble / Math.abs(toPoint.y - getPosition().y).toDouble
 
     val task = new TimerTask {
       var counter = 0
 
       def run() = {
-        val horizontalDirection = (toPoint.x - getPosition().x).toDouble / Math.abs(toPoint.y - getPosition().y).toDouble
-        val step = Math.abs(toPoint.x - getPosition().x).toDouble / Math.abs(toPoint.y - getPosition().y).toDouble
-        val next = pic.getX + (movementLength * horizontalDirection)
 
         counter = counter + 1
+        println(s"counter: $counter step: $step")
 
-        pic.setX(pic.getX + movementLength * xSign)
-
-        if (counter > step) {
+        if (step < 1) {
           pic.setY(pic.getY + movementLength * ySign)
-          counter = 0
+          if (counter > (1.0d / step)) {
+            pic.setX(pic.getX + movementLength * xSign)
+            counter = 0
+          }
+        } else {
+          pic.setX(pic.getX + movementLength * xSign)
+          if (counter > step) {
+            pic.setY(pic.getY + movementLength * ySign)
+            counter = 0
+          }
         }
 
         if (pic.getX > (toPoint.x - 2) && pic.getX < (toPoint.x + 2) ||
           pic.getY > (toPoint.y - 2) && pic.getY < (toPoint.y + 2)) {
           timer.cancel()
-          setPosition(new Point(pic.getX.toInt, pic.getY.toInt))
+          setPosition(toPoint)
+          pic.setX(toPoint.x)
+          pic.setY(toPoint.y)
         }
       }
     }
