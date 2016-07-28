@@ -73,25 +73,33 @@ class Robot(world: World) extends MovingObject {
     val ySign = (toPoint.y - getPosition().y) / Math.abs(toPoint.y - getPosition().y)
     val step = Math.abs(toPoint.x - getPosition().x).toDouble / Math.abs(toPoint.y - getPosition().y).toDouble
 
+    var totalMove = 0
+    var totalStep = 1
+
     val task = new TimerTask {
       var counter = 0
 
       def run() = {
-
         counter = counter + 1
-        println(s"counter: $counter step: $step")
+        totalMove = totalMove + 1
+
 
         if (step < 1) {
           pic.setY(pic.getY + movementLength * ySign)
-          if (counter > (1.0d / step)) {
+          if (totalMove > (totalStep * (1d / step))) {
             pic.setX(pic.getX + movementLength * xSign)
             counter = 0
+            totalStep = totalStep + 1
           }
         } else {
           pic.setX(pic.getX + movementLength * xSign)
-          if (counter > step) {
+
+          println(s"totalMove: $totalMove limit: ${totalStep * step}")
+          if (totalMove > (totalStep * step)) {
+            println("moving down")
             pic.setY(pic.getY + movementLength * ySign)
             counter = 0
+            totalStep = totalStep + 1
           }
         }
 
