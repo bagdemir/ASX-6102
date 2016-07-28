@@ -29,5 +29,5 @@ class World extends Pane {
 }
 
 class WorldUnit
-
 class Move
+case class Dimensions(w: Int, h: Int)
