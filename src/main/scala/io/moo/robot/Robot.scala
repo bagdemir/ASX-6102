@@ -36,7 +36,7 @@ trait WorldObject {
     * @return Sets the position of the object according to its center point.
     */
   def setPosition(newPos: Point): Unit = {
-    position = new Point(newPos.x - (dimensions.w / 2.0d).toInt, newPos.y - (dimensions.h / 2.0d).toInt)
+    position = newPos
   }
 
   /**
