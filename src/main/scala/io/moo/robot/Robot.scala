@@ -67,12 +67,11 @@ trait MovingObject extends WorldObject {
   } else 1
 
   def move(to: Point, velocity: Int): Unit = {
-    val toPoint = to
     val movementLength = 1
     val timer = new Timer()
-    val xSign = horizontalMovement(toPoint)
-    val ySign = verticalMovement(toPoint)
-    val step = Math.abs(toPoint.x - getPosition.x).toDouble / Math.abs(toPoint.y - getPosition.y).toDouble
+    val xSign = horizontalMovement(to)
+    val ySign = verticalMovement(to)
+    val step = Math.abs(to.x - getPosition.x).toDouble / Math.abs(to.y - getPosition.y).toDouble
 
     var totalMove = 0
     var totalStep = 1
@@ -97,10 +96,10 @@ trait MovingObject extends WorldObject {
           }
         }
         // snap
-        if (getPosition.x == toPoint.x || getPosition.y == toPoint.y) {
+        if (getPosition.x == to.x || getPosition.y == to.y) {
           timer.cancel()
-          println(s"position: ${getPosition} target: ${toPoint}")
-          setPosition(toPoint) // correction
+          println(s"position: ${getPosition} target: ${to}")
+          setPosition(to) // correction
         }
         update()
       }
