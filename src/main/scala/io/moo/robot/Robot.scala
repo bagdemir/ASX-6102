@@ -3,7 +3,6 @@ package io.moo.robot
 import java.awt.Point
 import java.util.{Timer, TimerTask}
 import javafx.scene.Node
-import javafx.scene.control.Label
 import javafx.scene.image.{Image, ImageView}
 
 /**
@@ -53,16 +52,26 @@ trait WorldObject {
 
 /**
   * Objects are able to move or be moved in the world, should implement this trait.
-  * Every time the object moves, it calls update method to inform the clients about
+  * Every time the object moves, it calls update method to inform the graphic objects about the move.
+  *
+  * @author Erhan Bagdemir
   */
 trait MovingObject extends WorldObject {
 
+  def verticalMovement(toPoint: Point): Int = if (toPoint.y != getPosition.y) {
+    (toPoint.y - getPosition.y) / Math.abs(toPoint.y - getPosition.y)
+  } else 1
+
+  def horizontalMovement(toPoint: Point): Int = if (toPoint.x != getPosition.x) {
+    (toPoint.x - getPosition.x) / Math.abs(toPoint.x - getPosition.x)
+  } else 1
+
   def move(to: Point, velocity: Int): Unit = {
-    val toPoint = to //  new Point((to.x - getDimensions.w / 2.0d).toInt, (to.y - getDimensions.h / 2.0d).toInt)
+    val toPoint = to
     val movementLength = 1
     val timer = new Timer()
-    val xSign = (toPoint.x - getPosition.x) / Math.abs(toPoint.x - getPosition.x)
-    val ySign = (toPoint.y - getPosition.y) / Math.abs(toPoint.y - getPosition.y)
+    val xSign = horizontalMovement(toPoint)
+    val ySign = verticalMovement(toPoint)
     val step = Math.abs(toPoint.x - getPosition.x).toDouble / Math.abs(toPoint.y - getPosition.y).toDouble
 
     var totalMove = 0
@@ -88,7 +97,7 @@ trait MovingObject extends WorldObject {
           }
         }
         // snap
-        if (getPosition.x == toPoint.x || getPosition.y  == toPoint.y) {
+        if (getPosition.x == toPoint.x || getPosition.y == toPoint.y) {
           timer.cancel()
           println(s"position: ${getPosition} target: ${toPoint}")
           setPosition(toPoint) // correction
