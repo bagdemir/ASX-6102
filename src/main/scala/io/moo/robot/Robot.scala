@@ -66,25 +66,29 @@ trait MovingObject extends WorldObject {
     (toPoint.x - getPosition.x) / Math.abs(toPoint.x - getPosition.x)
   } else 1
 
+  def delta(toPoint: Point) =
+    if (toPoint.y == getPosition.y) Math.abs(toPoint.x - getPosition.x).toDouble
+    else if (toPoint.x == getPosition.x) Math.abs(toPoint.y - getPosition.y).toDouble
+    else Math.abs(toPoint.x - getPosition.x).toDouble / Math.abs(toPoint.y - getPosition.y).toDouble
+
   def move(to: Point, velocity: Int): Unit = {
     val movementLength = 1
     val timer = new Timer()
     val xSign = horizontalMovement(to)
     val ySign = verticalMovement(to)
-    val step = Math.abs(to.x - getPosition.x).toDouble / Math.abs(to.y - getPosition.y).toDouble
-
+    val step = delta(to)
     var totalMove = 0
     var totalStep = 1
 
     val task = new TimerTask {
       def run() = {
-        totalMove = totalMove + 1
+        totalMove += 1
         if (step < 1) {
           setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
           println(s"totalMove: ${totalMove} > next${totalStep * (1d / step)} whereas step = ${step}")
-          if (totalMove > (totalStep * (1d / step))) {
+          if (step > 0 && totalMove > (totalStep * (1d / step))) {
             setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
-            totalStep = totalStep + 1
+            totalStep += 1
           }
         } else {
 
@@ -92,11 +96,11 @@ trait MovingObject extends WorldObject {
           setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
           if (totalMove > (totalStep * step)) {
             setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
-            totalStep = totalStep + 1
+            totalStep += 1
           }
         }
         // snap
-        if (getPosition.x == to.x || getPosition.y == to.y) {
+        if (Math.abs(getPosition.x - to.x) < 3 && Math.abs(getPosition.y - to.y) < 3) {
           timer.cancel()
           println(s"position: ${getPosition} target: ${to}")
           setPosition(to) // correction
