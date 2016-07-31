@@ -28,8 +28,6 @@ class GameApp extends Application {
 
   override def start(primaryStage: Stage): Unit = {
 
-    Platform.setImplicitExit(false)
-
     primaryStage.setOnCloseRequest( new EventHandler[WindowEvent]() {
       override def handle(event: WindowEvent) = {
         system.terminate()
