@@ -58,6 +58,8 @@ trait WorldObject {
   */
 trait MovingObject extends WorldObject {
 
+  var moving = false
+
   def verticalMovement(toPoint: Point): Int = if (toPoint.y != getPosition.y) {
     (toPoint.y - getPosition.y) / Math.abs(toPoint.y - getPosition.y)
   } else 1
@@ -72,6 +74,10 @@ trait MovingObject extends WorldObject {
     else Math.abs(toPoint.x - getPosition.x).toDouble / Math.abs(toPoint.y - getPosition.y).toDouble
 
   def move(to: Point, velocity: Int): Unit = {
+
+    if (moving) return
+
+    moving = true
     val movementLength = 1
     val timer = new Timer()
     val xSign = horizontalMovement(to)
@@ -104,6 +110,7 @@ trait MovingObject extends WorldObject {
           timer.cancel()
           println(s"position: ${getPosition} target: ${to}")
           setPosition(to) // correction
+          moving = false
         }
         update()
       }
