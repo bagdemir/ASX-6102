@@ -5,8 +5,7 @@ import java.util.{Timer, TimerTask}
 import javafx.scene.Node
 import javafx.scene.image.{Image, ImageView}
 
-import akka.actor.{Actor, ActorRef}
-import akka.actor.Actor.Receive
+import akka.actor.{Actor}
 
 /**
   * This class does nothing unless you provide some docs.
@@ -116,7 +115,6 @@ trait MovingObject extends WorldObject with Actor {
     }
     timer.schedule(task, 0L, 10L)
   }
-
 }
 
 /**

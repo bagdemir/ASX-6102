@@ -1,12 +1,8 @@
 package io.moo.robot
 
-import java.awt.Point
-import javafx.application.{Application, Platform}
+import javafx.application.{Application}
 import javafx.event.EventHandler
 import javafx.scene.Scene
-import javafx.scene.image.{Image, ImageView}
-import javafx.scene.input.MouseEvent
-import javafx.scene.layout.{GridPane, HBox, Pane, StackPane}
 import javafx.stage.{Stage, WindowEvent}
 
 import akka.actor.{ActorSystem, Props}
@@ -24,10 +20,12 @@ object GameApp {
 }
 
 class GameApp extends Application {
+  /* Actor system of the game. */
   val system = ActorSystem("World")
 
   override def start(primaryStage: Stage): Unit = {
 
+    /* Terminate the actor system so the application has no more active threads anymore. */
     primaryStage.setOnCloseRequest( new EventHandler[WindowEvent]() {
       override def handle(event: WindowEvent) = {
         system.terminate()

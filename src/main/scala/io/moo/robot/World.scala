@@ -8,7 +8,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.actor.Actor.Receive
 
 /**
   * This class does nothing unless you provide some docs.
