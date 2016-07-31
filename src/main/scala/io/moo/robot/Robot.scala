@@ -3,6 +3,7 @@ package io.moo.robot
 import java.awt.Point
 import java.util.{Timer, TimerTask}
 import javafx.scene.Node
+import javafx.scene.control.Label
 import javafx.scene.image.{Image, ImageView}
 
 /**
@@ -12,7 +13,7 @@ import javafx.scene.image.{Image, ImageView}
   */
 trait WorldObject {
 
-  private var position = new Point(10, 10)
+  private var position = new Point(30, 30)
 
   private val dimensions = new Dimensions(48, 48)
 
@@ -45,27 +46,11 @@ trait WorldObject {
 }
 
 trait MovingObject extends WorldObject {
-  def move(toPoint: Point, velocity: Int)
 
-}
+  def update()
 
-/**
-  * Robot is the first prototype.
-  */
-class Robot(world: World) extends MovingObject {
-  val pic = new ImageView(new Image(getClass().getResourceAsStream("/robot.gif")))
-  pic.setFitWidth(getDimensions.w)
-  pic.setFitHeight(getDimensions.h)
-  pic.setX(getXY().x)
-  pic.setY(getXY().y)
-  pic.getStyleClass.add("grid")
-  pic.setFocusTraversable(true)
-
-
-  override def getView(): Node = pic
-
-  override def move(to: Point, velocity: Int): Unit = {
-    val toPoint = new Point((to.x - getDimensions.w / 2.0d).toInt, (to.y - getDimensions.h / 2.0d).toInt)
+  def move(to: Point, velocity: Int): Unit = {
+    val toPoint = to //  new Point((to.x - getDimensions.w / 2.0d).toInt, (to.y - getDimensions.h / 2.0d).toInt)
     val movementLength = 1
     val timer = new Timer()
     val xSign = (toPoint.x - getPosition.x) / Math.abs(toPoint.x - getPosition.x)
@@ -79,28 +64,52 @@ class Robot(world: World) extends MovingObject {
       def run() = {
         totalMove = totalMove + 1
         if (step < 1) {
-          pic.setY(pic.getY + movementLength * ySign)
+          setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
+          println(s"totalMove: ${totalMove} > next${totalStep * (1d / step)} whereas step = ${step}")
           if (totalMove > (totalStep * (1d / step))) {
-            pic.setX(pic.getX + movementLength * xSign)
+            setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
             totalStep = totalStep + 1
           }
         } else {
-          pic.setX(pic.getX + movementLength * xSign)
+
+          println(s"totalMove: ${totalMove} > ${totalStep * step} whereas step = ${step}")
+          setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
           if (totalMove > (totalStep * step)) {
-            pic.setY(pic.getY + movementLength * ySign)
+            setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
             totalStep = totalStep + 1
           }
         }
-
-        if (pic.getX > (toPoint.x - 2) && pic.getX < (toPoint.x + 2) ||
-          pic.getY > (toPoint.y - 2) && pic.getY < (toPoint.y + 2)) {
+        // snap
+        if (getPosition.x == toPoint.x || getPosition.y  == toPoint.y) {
           timer.cancel()
-          setPosition(toPoint)
-          pic.setX(toPoint.x)
-          pic.setY(toPoint.y)
+          println(s"position: ${getPosition} target: ${toPoint}")
+          setPosition(toPoint) // correction
         }
+        update()
       }
     }
     timer.schedule(task, 0L, 10L)
   }
+
+}
+
+/**
+  * Robot is the first prototype.
+  */
+class Robot(world: World) extends MovingObject {
+  val graphics = new ImageView(new Image(getClass().getResourceAsStream("/robot.gif")))
+  graphics.setFitWidth(getDimensions.w)
+  graphics.setFitHeight(getDimensions.h)
+  graphics.setX(getXY().x)
+  graphics.setY(getXY().y)
+  graphics.getStyleClass.add("grid")
+  graphics.setFocusTraversable(true)
+
+  override def getView(): Node = graphics
+
+  override def update(): Unit = {
+    graphics.setX(getXY().x)
+    graphics.setY(getXY().y)
+  }
+
 }
