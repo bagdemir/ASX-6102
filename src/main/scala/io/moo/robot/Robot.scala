@@ -17,6 +17,12 @@ trait WorldObject {
 
   private val dimensions = new Dimensions(48, 48)
 
+
+  /**
+    * Updates the graphics.
+    */
+  def update()
+
   /**
     * @return The view representation.
     */
@@ -45,9 +51,11 @@ trait WorldObject {
   def getDimensions = dimensions
 }
 
+/**
+  * Objects are able to move or be moved in the world, should implement this trait.
+  * Every time the object moves, it calls update method to inform the clients about
+  */
 trait MovingObject extends WorldObject {
-
-  def update()
 
   def move(to: Point, velocity: Int): Unit = {
     val toPoint = to //  new Point((to.x - getDimensions.w / 2.0d).toInt, (to.y - getDimensions.h / 2.0d).toInt)
@@ -98,16 +106,16 @@ trait MovingObject extends WorldObject {
   */
 class Robot(world: World) extends MovingObject {
   val graphics = new ImageView(new Image(getClass().getResourceAsStream("/robot.gif")))
-  graphics.setFitWidth(getDimensions.w)
-  graphics.setFitHeight(getDimensions.h)
-  graphics.setX(getXY().x)
-  graphics.setY(getXY().y)
   graphics.getStyleClass.add("grid")
   graphics.setFocusTraversable(true)
+
+  update()
 
   override def getView(): Node = graphics
 
   override def update(): Unit = {
+    graphics.setFitWidth(getDimensions.w)
+    graphics.setFitHeight(getDimensions.h)
     graphics.setX(getXY().x)
     graphics.setY(getXY().y)
   }
