@@ -5,6 +5,9 @@ import java.util.{Timer, TimerTask}
 import javafx.scene.Node
 import javafx.scene.image.{Image, ImageView}
 
+import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor.Receive
+
 /**
   * This class does nothing unless you provide some docs.
   *
@@ -56,7 +59,7 @@ trait WorldObject {
   *
   * @author Erhan Bagdemir
   */
-trait MovingObject extends WorldObject {
+trait MovingObject extends WorldObject with Actor {
 
   var moving = false
 
@@ -91,15 +94,12 @@ trait MovingObject extends WorldObject {
         totalMove += 1
         if (step < 1) {
           setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
-          println(s"totalMove: ${totalMove} > next${totalStep * (1d / step)} whereas step = ${step}")
           if (step > 0 && totalMove > (totalStep * (1d / step))) {
             setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
             totalStep += 1
           }
         } else {
-
-          println(s"totalMove: ${totalMove} > ${totalStep * step} whereas step = ${step}")
-          setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
+         setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
           if (totalMove > (totalStep * step)) {
             setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
             totalStep += 1
@@ -108,7 +108,6 @@ trait MovingObject extends WorldObject {
         // snap
         if (Math.abs(getPosition.x - to.x) < 3 && Math.abs(getPosition.y - to.y) < 3) {
           timer.cancel()
-          println(s"position: ${getPosition} target: ${to}")
           setPosition(to) // correction
           moving = false
         }
@@ -139,4 +138,9 @@ class Robot(world: World) extends MovingObject {
     graphics.setY(getXY().y)
   }
 
+  override def receive: Receive = {
+    case GetView => world.stash ! GetViewResponse(getView)
+    case Move(to, velocity) => move(to, velocity)
+    case _ => println("I donno what you're saying!")
+  }
 }

@@ -1,38 +1,66 @@
 package io.moo.robot
 
 import java.awt.Point
+import javafx.application.Platform
 import javafx.event.EventHandler
-import javafx.scene.control.Label
+import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
+
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.actor.Actor.Receive
 
 /**
   * This class does nothing unless you provide some docs.
   *
-  * @author void
+  * @author Erhan Bagdemir
   */
-class World extends Pane {
-  var objects : List[WorldObject] = List()
-  val posDebugLabel = new Label("a label");
+class World(system:ActorSystem) extends Pane {
 
-  getChildren.add(posDebugLabel);
+  /** Stash actor keeps accounts of world objects. */
+  val stash = system.actorOf(Props(new Stash))
 
-
+  /** Forwards the mouse event to the stash. */
   setOnMouseClicked(new EventHandler[MouseEvent]() {
-    override def handle(event: MouseEvent) =  objects.foreach {
-      case mo: MovingObject => mo.move(new Point(event.getX.toInt, event.getY.toInt), 0)
-      case _ =>
-    }
+    override def handle(event: MouseEvent) = stash ! OnClick(event)
   })
 
-  def render() =  objects.foreach(obj => getChildren.add(obj.getView))
-  def add(worldObject: WorldObject) = {
-    objects = worldObject :: objects
-  }
+  /** Adds a new item to the stash. */
+  def add(ref: ActorRef) = stash ! Add(ref)
 
+  def world = stash
+
+  /**
+    * Stash to keep world objects.
+    */
+  case class Stash() extends Actor {
+    var refs : List[ActorRef] = List()
+
+    override def receive: Receive = {
+      case Add(ref) => {
+        refs ::= ref
+        ref ! GetView
+      }
+      case GetViewResponse(node: Node) => Platform.runLater(new Runnable() {
+        override def run(): Unit = getChildren.add(node)
+      })
+      case OnClick(event: MouseEvent) =>  refs.foreach { ref =>
+        ref ! Move(new Point(event.getX.toInt, event.getY.toInt), 0)
+      }
+    }
+  }
 
 }
 
-class WorldUnit
-class Move
+
+
 case class Dimensions(w: Int, h: Int)
+
+trait WorldAction
+case class Add(ref: ActorRef) extends WorldAction
+case class OnClick(event: MouseEvent) extends WorldAction
+
+trait Action
+case class GetView()
+case class GetViewResponse(node: Node)
+case class Move(to: Point, velocity: Int)
