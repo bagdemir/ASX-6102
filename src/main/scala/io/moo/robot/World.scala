@@ -10,7 +10,7 @@ import javafx.scene.layout.Pane
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 /**
-  * This class does nothing unless you provide some docs.
+  * The world of the game domain maintains the game artifacts.
   *
   * @author Erhan Bagdemir
   */
@@ -48,10 +48,7 @@ class World(system:ActorSystem) extends Pane {
       }
     }
   }
-
 }
-
-
 
 case class Dimensions(w: Int, h: Int)
 

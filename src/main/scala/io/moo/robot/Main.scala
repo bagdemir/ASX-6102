@@ -7,7 +7,6 @@ import javafx.stage.{Stage, WindowEvent}
 
 import akka.actor.{ActorSystem, Props}
 
-
 /**
   * Game application.
   *
@@ -32,7 +31,7 @@ class GameApp extends Application {
       }
     })
 
-    primaryStage.setTitle("Robots")
+    primaryStage.setTitle("Mr.Robot")
 
     val world = new World(system)
     val robot1 = system.actorOf(Props(new Robot(world)), "Mr.Robot")
