@@ -85,6 +85,7 @@ trait MovingObject extends WorldObject with Actor {
     val xSign = horizontalMovement(to)
     val ySign = verticalMovement(to)
     val step = delta(to)
+
     var totalMove = 0
     var totalStep = 1
 
