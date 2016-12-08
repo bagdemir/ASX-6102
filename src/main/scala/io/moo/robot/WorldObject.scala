@@ -52,6 +52,10 @@ trait WorldObject {
   def getDimensions = dimensions
 }
 
+trait StaticObject extends WorldObject with Actor {
+  //  Static object is subject to stand still.
+}
+
 /**
   * Objects are able to move or be moved in the world, should implement this trait.
   * Every time the object moves, it calls update method to inform the graphic objects about the move.
