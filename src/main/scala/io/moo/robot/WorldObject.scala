@@ -16,7 +16,7 @@ trait WorldObject {
 
   private var position = new Point(30, 30)
 
-  private val dimensions = new Dimensions(48, 48)
+  private val dimensions = Dimensions(48, 48)
 
 
   /**
@@ -37,7 +37,7 @@ trait WorldObject {
   /**
     * @return The top-left corner.
     */
-  def getXY(): Point = new Point(position.x - (dimensions.w / 2.0d).toInt, position.y - (dimensions.h / 2.0d).toInt)
+  def getXY: Point = new Point(position.x - (dimensions.w / 2.0d).toInt, position.y - (dimensions.h / 2.0d).toInt)
 
   /**
     * @return Sets the position of the object according to its center point.
