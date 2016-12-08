@@ -137,8 +137,8 @@ class Robot(world: World) extends MovingObject {
   override def update(): Unit = {
     graphics.setFitWidth(getDimensions.w)
     graphics.setFitHeight(getDimensions.h)
-    graphics.setX(getXY().x)
-    graphics.setY(getXY().y)
+    graphics.setX(getXY.x)
+    graphics.setY(getXY.y)
   }
 
   override def receive: Receive = {
