@@ -152,7 +152,7 @@ class Wall(world: World, pos: Point) extends StaticObject {
   override def getView: Node = graphics
 
   override def receive: Receive = {
-    case GetView => world.stash ! GetViewResponse(getView)
+    case GetView => world.objectStore ! GetViewResponse(getView)
     case _ => println("I donno what you're saying!")
   }
 }
@@ -177,7 +177,7 @@ class Robot(world: World) extends MovingObject {
   }
 
   override def receive: Receive = {
-    case GetView => world.stash ! GetViewResponse(getView)
+    case GetView => world.objectStore ! GetViewResponse(getView)
     case Move(to, velocity) => move(to, velocity)
     case _ => println("I donno what you're saying!")
   }

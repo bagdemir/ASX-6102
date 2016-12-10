@@ -31,16 +31,22 @@ class GameApp extends Application {
       }
     })
 
-    primaryStage.setTitle("Mr.Robot")
+    primaryStage.setTitle(WorldConfiguration.windowTitle)
 
     val world = new World(system)
     val robot1 = system.actorOf(Props(new Robot(world)), "Mr.Robot")
     world.add(robot1)
 
-    val scene = new Scene(world, 640, 480)
+    val scene = new Scene(world, WorldConfiguration.width, WorldConfiguration.height)
     scene.getStylesheets.add("./robots.css")
 
     primaryStage.setScene(scene)
     primaryStage.show()
   }
+}
+
+object WorldConfiguration {
+  val width = 640
+  val height = 480
+  val windowTitle = "Mr. Robot"
 }

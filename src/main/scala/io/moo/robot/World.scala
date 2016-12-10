@@ -19,14 +19,16 @@ class World(system: ActorSystem) extends Pane {
 
   // TODO Load maps from flat files.
   val terrain =
-    """oooxooo
+     """oooxooo
       | ooox
-      | oxxxxx
-      | o
+      | oxxxxxxxxxxxxxoo
+      | oooxooooox
+      | oooxooooox
+      | oooxxxxooo
       | o""".stripMargin
 
-  /** Stash actor keeps accounts of world objects. */
-  val stash = system.actorOf(Props(new Stash))
+  /** objectStore actor keeps accounts of world objects. */
+  val objectStore = system.actorOf(Props(new ObjectStore))
 
   /** Map of the world. */
   val map = Map(terrain, this)
@@ -35,29 +37,29 @@ class World(system: ActorSystem) extends Pane {
 
   /** Forwards the mouse event to the stash. */
   setOnMouseClicked(new EventHandler[MouseEvent]() {
-    override def handle(event: MouseEvent) = stash ! OnClick(event)
+    override def handle(event: MouseEvent) = objectStore ! OnClick(event)
   })
 
   /** Adds a new item to the stash. */
-  def add(ref: ActorRef) = stash ! Add(ref)
+  def add(ref: ActorRef) = objectStore ! Add(ref)
 
   /** Adds a new static item to the stash. */
-  def addStaticObject(obj: StaticObject) = stash ! Add(system.actorOf(Props(obj)))
+  def addStaticObject(obj: StaticObject) = objectStore ! Add(system.actorOf(Props(obj)))
 
   /** Adds a new static item to the stash. */
   def addWall(position: Point) = {
-    stash ! Add(system.actorOf(Props(new Wall(this, position))))
+    objectStore ! Add(system.actorOf(Props(new Wall(this, position))))
   }
 
   /** Adds a new static item to the stash. */
-  def addMovingObject(obj: MovingObject) = stash ! Add(system.actorOf(Props(obj)))
+  def addMovingObject(obj: MovingObject) = objectStore ! Add(system.actorOf(Props(obj)))
 
-  def world = stash
+  def world = objectStore
 
   /**
     * Stash to keep world objects.
     */
-  case class Stash() extends Actor {
+  case class ObjectStore() extends Actor {
     var refs : List[ActorRef] = List()
 
     override def receive: Receive = {

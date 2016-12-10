@@ -13,6 +13,7 @@ object Map {
 
 class Map(val terrain: String, val world: World) {
 
+
   def loadTerrain(): Unit = {
     val pattern = new Regex("x|X")
     terrainArray.indices.foreach(row => pattern.findAllIn(terrainArray(row).trim).matchData.foreach(x => draw(row,
@@ -20,7 +21,8 @@ class Map(val terrain: String, val world: World) {
   }
 
   def draw(rowNo: Int, left: Int) = {
-    world.addWall(new Point(32 + (32*left), 32 + (rowNo*32)))
+    val horizontalScaleRatio = (WorldConfiguration.width - (2 * 32)) / calculateSize._1
+    world.addWall(new Point(32 + (32 * left), 32 + (rowNo * 32)))
   }
 
   def terrainArray = terrain.split('\n')
