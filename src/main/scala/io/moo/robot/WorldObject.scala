@@ -5,7 +5,7 @@ import java.util.{Timer, TimerTask}
 import javafx.scene.Node
 import javafx.scene.image.{Image, ImageView}
 
-import akka.actor.{Actor}
+import akka.actor.Actor
 
 /**
   * This class does nothing unless you provide some docs.
@@ -16,7 +16,7 @@ trait WorldObject {
 
   private var position = new Point(30, 30)
 
-  private val dimensions = Dimensions(48, 48)
+  private var dimensions = Dimensions(48, 48)
 
 
   /**
@@ -44,6 +44,10 @@ trait WorldObject {
     */
   def setPosition(newPos: Point): Unit = {
     position = newPos
+  }
+
+  def setDimension(width: Int, height: Int): Unit = {
+    dimensions = Dimensions(width, height)
   }
 
   /**
@@ -103,7 +107,7 @@ trait MovingObject extends WorldObject with Actor {
             totalStep += 1
           }
         } else {
-         setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
+          setPosition(new Point(getPosition.x + movementLength * xSign, getPosition.y))
           if (totalMove > (totalStep * step)) {
             setPosition(new Point(getPosition.x, getPosition.y + movementLength * ySign))
             totalStep += 1
@@ -122,17 +126,48 @@ trait MovingObject extends WorldObject with Actor {
   }
 }
 
-/**
-  * Robot is the first prototype.
-  */
-class Robot(world: World) extends MovingObject {
-  val graphics = new ImageView(new Image(getClass().getResourceAsStream("/robot.gif")))
+class Wall(world: World, pos: Point) extends StaticObject {
+
+  setDimension(32, 32)
+
+  val graphics = new ImageView(new Image(getClass.getResourceAsStream("/wall.png")))
   graphics.getStyleClass.add("grid")
   graphics.setFocusTraversable(true)
 
   update()
 
-  override def getView(): Node = graphics
+  /**
+    * Updates the graphics.
+    */
+  override def update(): Unit = {
+    graphics.setFitWidth(getDimensions.w)
+    graphics.setFitHeight(getDimensions.h)
+    graphics.setX(pos.x)
+    graphics.setY(pos.y)
+  }
+
+  /**
+    * @return The view representation.
+    */
+  override def getView: Node = graphics
+
+  override def receive: Receive = {
+    case GetView => world.stash ! GetViewResponse(getView)
+    case _ => println("I donno what you're saying!")
+  }
+}
+
+/**
+  * Robot is the first prototype.
+  */
+class Robot(world: World) extends MovingObject {
+  val graphics = new ImageView(new Image(getClass.getResourceAsStream("/robot.gif")))
+  graphics.getStyleClass.add("grid")
+  graphics.setFocusTraversable(true)
+
+  update()
+
+  override def getView: Node = graphics
 
   override def update(): Unit = {
     graphics.setFitWidth(getDimensions.w)

@@ -7,6 +7,7 @@ import javafx.scene.Node
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 
+
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 /**
@@ -14,10 +15,23 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
   *
   * @author Erhan Bagdemir
   */
-class World(system:ActorSystem) extends Pane {
+class World(system: ActorSystem) extends Pane {
+
+  // TODO Load maps from flat files.
+  val terrain =
+    """oooxooo
+      | ooox
+      | oxxxxx
+      | o
+      | o""".stripMargin
 
   /** Stash actor keeps accounts of world objects. */
   val stash = system.actorOf(Props(new Stash))
+
+  /** Map of the world. */
+  val map = Map(terrain, this)
+
+  map.loadTerrain()
 
   /** Forwards the mouse event to the stash. */
   setOnMouseClicked(new EventHandler[MouseEvent]() {
@@ -26,6 +40,17 @@ class World(system:ActorSystem) extends Pane {
 
   /** Adds a new item to the stash. */
   def add(ref: ActorRef) = stash ! Add(ref)
+
+  /** Adds a new static item to the stash. */
+  def addStaticObject(obj: StaticObject) = stash ! Add(system.actorOf(Props(obj)))
+
+  /** Adds a new static item to the stash. */
+  def addWall(position: Point) = {
+    stash ! Add(system.actorOf(Props(new Wall(this, position))))
+  }
+
+  /** Adds a new static item to the stash. */
+  def addMovingObject(obj: MovingObject) = stash ! Add(system.actorOf(Props(obj)))
 
   def world = stash
 
@@ -36,10 +61,9 @@ class World(system:ActorSystem) extends Pane {
     var refs : List[ActorRef] = List()
 
     override def receive: Receive = {
-      case Add(ref) => {
+      case Add(ref) =>
         refs ::= ref
         ref ! GetView
-      }
       case GetViewResponse(node: Node) => Platform.runLater(new Runnable() {
         override def run(): Unit = getChildren.add(node)
       })
