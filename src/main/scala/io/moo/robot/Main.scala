@@ -1,10 +1,11 @@
 package io.moo.robot
 
-import javafx.application.{Application}
+import javafx.application.Application
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.stage.{Stage, WindowEvent}
 
+import akka.actor.Actor.Receive
 import akka.actor.{ActorSystem, Props}
 
 /**
@@ -15,7 +16,7 @@ import akka.actor.{ActorSystem, Props}
 object GameApp {
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[GameApp], args: _*)
- }
+  }
 }
 
 class GameApp extends Application {
@@ -25,7 +26,7 @@ class GameApp extends Application {
   override def start(primaryStage: Stage): Unit = {
 
     /* Terminate the actor system so the application has no more active threads anymore. */
-    primaryStage.setOnCloseRequest( new EventHandler[WindowEvent]() {
+    primaryStage.setOnCloseRequest(new EventHandler[WindowEvent]() {
       override def handle(event: WindowEvent) = {
         system.terminate()
       }
@@ -33,9 +34,10 @@ class GameApp extends Application {
 
     primaryStage.setTitle(WorldConfiguration.windowTitle)
 
-    val world = new World(system)
-    val robot1 = system.actorOf(Props(new Robot(world)), "Mr.Robot")
-    world.add(robot1)
+    val robot = new Robot
+    val p1Controller = system.actorOf(Props(new UserController(robot)))
+    val world = new World(system, p1Controller)
+    world.add(robot)
 
     val scene = new Scene(world, WorldConfiguration.width, WorldConfiguration.height)
     scene.getStylesheets.add("./robots.css")

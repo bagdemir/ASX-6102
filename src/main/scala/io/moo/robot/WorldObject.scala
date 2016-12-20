@@ -6,6 +6,7 @@ import javafx.scene.Node
 import javafx.scene.image.{Image, ImageView}
 
 import akka.actor.Actor
+import akka.actor.Actor.Receive
 
 /**
   * This class does nothing unless you provide some docs.
@@ -56,7 +57,7 @@ trait WorldObject {
   def getDimensions = dimensions
 }
 
-trait StaticObject extends WorldObject with Actor {
+trait StaticObject extends WorldObject {
   //  Static object is subject to stand still.
 }
 
@@ -66,7 +67,7 @@ trait StaticObject extends WorldObject with Actor {
   *
   * @author Erhan Bagdemir
   */
-trait MovingObject extends WorldObject with Actor {
+trait MovingObject extends WorldObject {
 
   var moving = false
 
@@ -126,7 +127,19 @@ trait MovingObject extends WorldObject with Actor {
   }
 }
 
-class Wall(world: World, pos: Point) extends StaticObject {
+trait Controllable extends Actor
+
+class UserController(userActor: MovingObject) extends Controllable {
+  override def receive: Receive = {
+    case Move(to, velocity) => userActor.move(to, velocity)
+    case _ => {
+      println("I donno what you're saying!")
+    }
+  }
+}
+
+
+class Wall(pos: Point) extends StaticObject {
 
   setDimension(32, 32)
 
@@ -150,17 +163,13 @@ class Wall(world: World, pos: Point) extends StaticObject {
     * @return The view representation.
     */
   override def getView: Node = graphics
-
-  override def receive: Receive = {
-    case GetView => world.objectStore ! GetViewResponse(getView)
-    case _ => println("I donno what you're saying!")
-  }
 }
 
 /**
   * Robot is the first prototype.
   */
-class Robot(world: World) extends MovingObject {
+class Robot extends MovingObject {
+
   val graphics = new ImageView(new Image(getClass.getResourceAsStream("/robot.gif")))
   graphics.getStyleClass.add("grid")
   graphics.setFocusTraversable(true)
@@ -174,11 +183,5 @@ class Robot(world: World) extends MovingObject {
     graphics.setFitHeight(getDimensions.h)
     graphics.setX(getXY.x)
     graphics.setY(getXY.y)
-  }
-
-  override def receive: Receive = {
-    case GetView => world.objectStore ! GetViewResponse(getView)
-    case Move(to, velocity) => move(to, velocity)
-    case _ => println("I donno what you're saying!")
   }
 }

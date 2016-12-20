@@ -1,18 +1,14 @@
-val terrain =
-  """
-    | oooxooo
-    | oooxooo
-    | oxxxxxo
-    | ooooooo
-  """.stripMargin
-
-
-object Map {
-  def apply(terrain: String) = new Map(terrain)
+trait Monoid[A] {
+  def op(a1: A, a2: A): A
+  def zero: A
 }
 
-class Map(terrain: String) {
-  val rows = terrain.split("\n").toList
-  println(rows.max)
-
+val intAddition: Monoid[Int] = new Monoid[Int] {
+  def op(x: Int, y: Int) = x + y
+  val zero = 0
 }
+
+def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B =
+  as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
+
+foldMap(List(1, 2, 3), intAddition)((a) => a * -1)

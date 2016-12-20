@@ -21,8 +21,9 @@ class Map(val terrain: String, val world: World) {
   }
 
   def draw(rowNo: Int, left: Int) = {
+    val (x, y) = world.getVertexPositionBy(left, rowNo)
     val horizontalScaleRatio = (WorldConfiguration.width - (2 * 32)) / calculateSize._1
-    world.addWall(new Point(32 + (32 * left), 32 + (rowNo * 32)))
+    world.addWall(new Point(x, y))
   }
 
   def terrainArray = terrain.split('\n')
